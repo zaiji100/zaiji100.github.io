@@ -1,0 +1,228 @@
+.bs-wiki-nav {
+  margin-bottom: 0;
+  background-color: #fff;
+  border-bottom: 0;
+}
+.bs-home-nav .bs-nav-b {
+  display: none;
+}
+.bs-wiki-nav .navbar-brand,
+.bs-wiki-nav .navbar-nav > li > a {
+  color: #563d7c;
+  font-weight: 500;
+}
+.bs-wiki-nav .navbar-nav > li > a:hover,
+.bs-wiki-nav .navbar-nav > .active > a,
+.bs-wiki-nav .navbar-nav > .active > a:hover {
+  color: #463265;
+  background-color: #f9f9f9;
+}
+.bs-wiki-nav .navbar-toggle .icon-bar {
+  background-color: #563d7c;
+}
+.bs-wiki-nav .navbar-header .navbar-toggle {
+  border-color: #fff;
+}
+.bs-wiki-nav .navbar-header .navbar-toggle:hover,
+.bs-wiki-nav .navbar-header .navbar-toggle:focus {
+  background-color: #f9f9f9;
+  border-color: #f9f9f9;
+}
+.bs-wiki-container {
+	margin-top: 50px;
+}
+/* Space things out */
+.bs-wiki-section {
+  margin-bottom: 60px;
+}
+.bs-wiki-section:last-child {
+  margin-bottom: 0;
+}
+.bs-wiki-footer {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  margin-top: 100px;
+  color: #777;
+  text-align: center;
+  border-top: 1px solid #e5e5e5;
+}
+/*
+ * Side navigation
+ *
+ * Scrollspy and affixed enhanced navigation to highlight sections and secondary
+ * sections of docs content.
+ */
+
+/* By default it's not affixed in mobile views, so undo that */
+.bs-wiki-sidebar.affix {
+  position: static;
+}
+@media (min-width: 768px) {
+  .bs-wiki-sidebar {
+    padding-left: 20px;
+  }
+}
+
+/* First level of nav */
+.bs-wiki-sidenav {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* All levels of nav */
+.bs-wiki-sidebar .nav > li > a {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #999;
+  padding: 4px 20px;
+}
+.bs-wiki-sidebar .nav > li > a:hover,
+.bs-wiki-sidebar .nav > li > a:focus {
+  padding-left: 19px;
+  color: #563d7c;
+  text-decoration: none;
+  background-color: transparent;
+  border-left: 1px solid #563d7c;
+}
+.bs-wiki-sidebar .nav > .active > a,
+.bs-wiki-sidebar .nav > .active:hover > a,
+.bs-wiki-sidebar .nav > .active:focus > a {
+  padding-left: 18px;
+  font-weight: bold;
+  color: #563d7c;
+  background-color: transparent;
+  border-left: 2px solid #563d7c;
+}
+
+/* Back to top (hidden on mobile) */
+.back-to-top {
+  display: none;
+  margin-top: 10px;
+  margin-left: 10px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #999;
+}
+.back-to-top:hover {
+  text-decoration: none;
+  color: #563d7c;
+}
+
+@media (min-width: 768px) {
+  .back-to-top {
+    display: block;
+  }
+}
+
+/* Show and affix the side nav when space allows it */
+@media (min-width: 992px) {
+  .bs-wiki-sidebar .nav > .active > ul {
+    display: block;
+  }
+  /* Widen the fixed sidebar */
+  .bs-wiki-sidebar.affix,
+  .bs-wiki-sidebar.affix-bottom {
+    width: 213px;
+  }
+  .bs-wiki-sidebar.affix {
+    position: fixed; /* Undo the static from mobile first approach */
+    top: 60px;
+  }
+  .bs-wiki-sidebar.affix-bottom {
+    position: absolute; /* Undo the static from mobile first approach */
+  }
+  .bs-wiki-sidebar.affix-bottom .bs-wiki-sidenav,
+  .bs-wiki-sidebar.affix .bs-wiki-sidenav {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+@media (min-width: 1200px) {
+  /* Widen the fixed sidebar again */
+  .bs-wiki-sidebar.affix-bottom,
+  .bs-wiki-sidebar.affix {
+    width: 263px;
+  }
+}
+
+.wiki-content h2 {
+	padding-top: 60px;
+}
+
+/* Common styles for all types */
+.bs-callout {
+  margin: 20px 0;
+  padding: 20px;
+  border-left: 3px solid #eee;
+}
+.bs-callout h4 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+.bs-callout p:last-child {
+  margin-bottom: 0;
+}
+.bs-callout code {
+  background-color: #fff;
+  border-radius: 3px;
+}
+
+/* Variations */
+.bs-callout-danger {
+  background-color: #fdf7f7;
+  border-color: #d9534f;
+}
+.bs-callout-danger h4 {
+  color: #d9534f;
+}
+.bs-callout-warning {
+  background-color: #fcf8f2;
+  border-color: #f0ad4e;
+}
+.bs-callout-warning h4 {
+  color: #f0ad4e;
+}
+.bs-callout-info {
+  background-color: #f4f8fa;
+  border-color: #5bc0de;
+}
+.bs-callout-info h4 {
+  color: #5bc0de;
+}
+
+.bs-console {
+  position: relative;
+  padding: 45px 15px 15px;
+  margin: 0 -15px 15px;
+  background-color: #fafafa;
+  box-shadow: inset 0 3px 6px rgba(0,0,0,.05);
+  border-color: #e5e5e5 #eee #eee;
+  border-style: solid;
+  border-width: 1px 0;
+}
+/* Echo out a label for the console */
+.bs-console:after {
+  content: "Console";
+  position: absolute;
+  top:  15px;
+  left: 15px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #bbb;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@media (min-width: 768px) {
+  .bs-console {
+    margin-left: 0;
+    margin-right: 0;
+    background-color: #fff;
+    border-width: 1px;
+    border-color: #ddd;
+    border-radius: 4px 4px 0 0;
+    box-shadow: none;
+  }
+}

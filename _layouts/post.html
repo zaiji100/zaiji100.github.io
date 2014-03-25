@@ -1,0 +1,17 @@
+---
+layout: default
+---
+<div class="row">
+	<div class="col-md-9" role="main">
+		<h1>{{ page.title }} <small>{{ page.date | date_to_string }}</small></h1>
+		<p class="lead">{{ page.description }}</p>
+		<div class="wiki-content">{{ content }}</div>
+	</div>
+	<div class="col-md-3">
+		<div class="bs-wiki-sidebar hidden-print" role="complementary">
+			<ul class="nav bs-wiki-sidenav">
+			</ul>
+		</div>
+	</div>
+</div>
+
