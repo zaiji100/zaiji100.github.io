@@ -221,3 +221,9 @@ assert buf.get(0) != copy.get(0); #2
 	语句2处不会fail，因为<code>copy</code>方法产生的<code>ByteBuf</code>产用的是一个独立的内部数据
 </div>
 
+## ChannelHandlers
+
+<div class="bs-callout bs-callout-info">
+	通过写一个<code>DefaultFileRegion</code>实例到<code>Channel</code>，<code>ChannelHandlerContext</code>或<code>ChannelPipeline</code>来使用netty的zero-memory-copy写文件功能；如果需要对文件加密或压缩（例如使用HTTPS等），使用<code>ChunkedFile</code>或<code>ChunkedNioFile</code>代替
+</div>
+
