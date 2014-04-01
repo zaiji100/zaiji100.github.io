@@ -477,4 +477,4 @@ public class AggregateAndRecommendReducer
 
 ## 推荐流程 {#process}
 
-<img src="/assets/img/multiplication2.png" class="img-thumbnail">
+<img src="/assets/img/recommend.png" class="img-thumbnail">
