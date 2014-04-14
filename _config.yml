@@ -1,2 +1,3 @@
 name: MengKe's Wiki
+markdown: kramdown
 pygments: true
