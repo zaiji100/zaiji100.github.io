@@ -227,3 +227,220 @@ assert buf.get(0) != copy.get(0); #2
 	通过写一个<code>DefaultFileRegion</code>实例到<code>Channel</code>，<code>ChannelHandlerContext</code>或<code>ChannelPipeline</code>来使用netty的zero-memory-copy写文件功能；如果需要对文件加密或压缩（例如使用HTTPS等），使用<code>ChunkedFile</code>或<code>ChunkedNioFile</code>代替
 </div>
 
+## How it works together
+
+### Nio TCP Server
+
+#### 启动一个简单的Server
+
+首先TCP Server需要ServerBootstrap来启动，下面是启动一个简单的Server例子
+
+{% highlight java %}
+public class EchoServer {
+    private final int port;
+    public EchoServer(int port) {
+        this.port = port;
+    }
+    public void start() throws Exception {
+        EventLoopGroup group = new NioEventLoopGroup();
+        try {
+            ServerBootstrap b = new ServerBootstrap(); // 1
+            b.group(group)  // 2
+             .channel(NioServerSocketChannel.class) // 2
+             .localAddress(new InetSocketAddress(port))    // 2
+             .childHandler(new ChannelInitializer<SocketChannel>() {  // 3
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    ch.pipeline().addLast(new EchoServerHandler());                  // 4
+                }
+             });
+            ChannelFuture f = b.bind().sync(); // 5
+            System.out.println(EchoServer.class.getName() +
+                        “ started and listen on “ + f.channel().localAddress());
+            f.channel().closeFuture().sync(); // 6
+        } finally {
+            group.shutdownGracefully().sync(); // 7
+        }
+    }
+}
+{% endhighlight %}
+
+1. 要启动一个Server，需要new一个ServerBootstrap实例
+2. 为Channel设置类型，这里使用`NioServerSocketChannel`，以及执行该Channel中IO以及其他事件的EventLoopGroup，需要绑定的本地端口
+3. 当一个连接被接受，则创建一个子Channel，对应于该Channel的handlers为childHandler，一般在server中我们都只使用child handler，类似于bind的事件，属于父handler负责
+4. 为child Channel的pipeline添加handlers
+5. 服务bind到指定端口，并且block当前线程，直到bind操作完成
+6. block当前线程，直到Server Channel关闭
+7. 在Server Channel关闭后，将EventLoopGroup关闭
+
+#### ServerBootstrap
+
+`ServerBootstrap`是一个负责启动Server的辅助类，继承自`AbstractBootstrap`，其中包含了大量的设置方法，这些设置方法均返回this实例
+在`ServerBootstrap`做完必要的设置后，就可以调用它的`bind`方法来绑定指定的端口，该方法在`AbstractBootstrap`
+
+{% highlight java %}
+public ChannelFuture bind(SocketAddress localAddress) {
+    validate();       // 1
+    if (localAddress == null) {
+        throw new NullPointerException("localAddress");
+    }
+    return doBind(localAddress);  // 2
+}
+{% endhighlight %}
+
+1. 调用validate方法，检查`ServerBootstrap`的设置，主要检测`group`，`childGroup`，`childHandler`，`channelFactory`是否为空
+2. 调用内部方法doBind
+
+{% highlight java %}
+private ChannelFuture doBind(final SocketAddress localAddress) {
+    final ChannelFuture regFuture = initAndRegister();  // 1
+    final Channel channel = regFuture.channel();
+    if (regFuture.cause() != null) {     // 2
+        return regFuture;
+    }
+    final ChannelPromise promise;
+    if (regFuture.isDone()) {      // 3
+        promise = channel.newPromise();
+        doBind0(regFuture, channel, localAddress, promise);
+    } else {                               // 3
+        // Registration future is almost always fulfilled already, but just in case it's not.
+        promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
+        regFuture.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                doBind0(regFuture, channel, localAddress, promise);
+            }
+        });
+    }
+    return promise;
+}
+{% endhighlight %}
+
+1.创建一个Channel，并初始化，注册，对于NIO来说，注册过程就是将当前Channel在selector中注册
+2.如果上述步骤中有异常发生，则直接返回
+3.如果上述步骤已完成，则bind指定端口，如果未完成，则设置回调，当完成上述步骤后，进行bind
+
+创建Channel的代码如下
+
+{% highlight java %}
+@Override
+public T newChannel(EventLoop eventLoop, EventLoopGroup childGroup) {
+    try {
+        Constructor<? extends T> constructor = clazz.getConstructor(EventLoop.class, EventLoopGroup.class);
+        return constructor.newInstance(eventLoop, childGroup);
+    } catch (Throwable t) {
+        throw new ChannelException("Unable to create Channel from class " + clazz, t);
+    }
+}
+{% endhighlight %}
+
+如果设定`NioServerSocketChannel`为Channel，则上面代码中的`clazz`为`NioServerSocketChannel`
+
+下面是init过程
+
+{% highlight java %}
+@Override
+void init(Channel channel) throws Exception {
+    final Map<ChannelOption<?>, Object> options = options();
+    synchronized (options) {
+        channel.config().setOptions(options);  // 为channel设置options
+    }
+    final Map<AttributeKey<?>, Object> attrs = attrs();
+    synchronized (attrs) {   // 为channel设置attributes
+        for (Entry<AttributeKey<?>, Object> e: attrs.entrySet()) {
+            @SuppressWarnings("unchecked")
+            AttributeKey<Object> key = (AttributeKey<Object>) e.getKey();
+            channel.attr(key).set(e.getValue());
+        }
+    }
+    ChannelPipeline p = channel.pipeline();
+    if (handler() != null) {
+        p.addLast(handler());  // 为Server设置handler
+    }
+    final ChannelHandler currentChildHandler = childHandler;
+    final Entry<ChannelOption<?>, Object>[] currentChildOptions;
+    final Entry<AttributeKey<?>, Object>[] currentChildAttrs;
+    synchronized (childOptions) {
+        currentChildOptions = childOptions.entrySet().toArray(newOptionArray(childOptions.size()));
+    }
+    synchronized (childAttrs) {
+        currentChildAttrs = childAttrs.entrySet().toArray(newAttrArray(childAttrs.size()));
+    }
+    p.addLast(new ChannelInitializer<Channel>() {
+        @Override
+        public void initChannel(Channel ch) throws Exception {
+            ch.pipeline().addLast(new ServerBootstrapAcceptor(currentChildHandler, currentChildOptions,
+                    currentChildAttrs));  // 将这些属性设置在ServerBootstrapAcceptor，当有新的连接时，将这些属性设置到这些连接对应的channel中
+        }
+    });
+}
+{% endhighlight %}
+
+register过程如下
+
+{% highlight java %}
+@Override
+public final void register(final ChannelPromise promise) {
+    if (eventLoop.inEventLoop()) {
+        register0(promise);   // 如果当前线程为eventLoop线程，则执行register0
+    } else {
+        try {
+            eventLoop.execute(new OneTimeTask() {   // 如果当前线程不是eventLoop线程，则使用eventLoop执行register0
+                @Override
+                public void run() {
+                    register0(promise);
+                }
+            });
+        } catch (Throwable t) {
+            ...
+        }
+    }
+}
+{% endhighlight %}
+
+在register0中会利用java nio的channel注册到selector中，ops为0
+
+{% highlight java %}
+selectionKey = javaChannel().register(eventLoop().selector, 0, this);  // attachment为Channel自身
+{% endhighlight %}
+
+除了上述操作外还会调用pipeline的`fireChannelRegistered`方法
+
+下面再来看一下`doBind0`方法，它是真正负责将socket channel bind到指定端口的方法
+
+{% highlight java %}
+private static void doBind0(
+        final ChannelFuture regFuture, final Channel channel,
+        final SocketAddress localAddress, final ChannelPromise promise) {
+    // This method is invoked before channelRegistered() is triggered.  Give user handlers a chance to set up
+    // the pipeline in its channelRegistered() implementation.
+    // ? 未找到该处是如何做到的
+    channel.eventLoop().execute(new Runnable() {
+        @Override
+        public void run() {
+            if (regFuture.isSuccess()) {
+                channel.bind(localAddress, promise).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+            } else {
+                promise.setFailure(regFuture.cause());
+            }
+        }
+    });
+}
+{% endhighlight %}
+
+`channel.bind`方法最终会调用`HeadHandler.bind`方法(该handler在创建`DefaultChannelPipeline`时，被添加到pipeline的开始位置，并且永远都处于开始位置)
+`HeadHandler.bind`方法内容如下
+
+{% highlight java %}
+unsafe.bind(localAddress, promise);
+{% endhighlight %}
+
+`unsafe.bind`方法最终会调用`AbstractChannel.doBind`方法，该方法为抽象方法，而`NioServerSocketChannel`为它提供了实现
+
+{% highlight java %}
+javaChannel().socket().bind(localAddress, config.getBacklog());
+{% endhighlight %}
+
+<div class="bs-callout bs-callout-warning">
+	目前还是没有弄清楚如何能够让bind在<code>fireChannelRegistered</code>之前被调用
+</div>
