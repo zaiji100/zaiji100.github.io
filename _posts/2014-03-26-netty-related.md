@@ -7,10 +7,11 @@ tags: [netty, NIO]
 ## Transports
 
 > Netty中共提供4种Transport
-> * 非阻塞 `io.netty.channel.socket.nio`
-> * 阻塞   `io.netty.channel.socket.oio`
-> * 本地   `io.netty.channel.local`      并不发生真正的socket通信，消息在JVM中传递，并且所有操作是非阻塞的.
-> * 嵌入式 `io.netty.channel.embedded`    主要用于测试
+>
+> * **非阻塞** `io.netty.channel.socket.nio`
+> * **阻塞**   `io.netty.channel.socket.oio`
+> * **本地**   `io.netty.channel.local`      并不发生真正的socket通信，消息在JVM中传递，并且所有操作是非阻塞的.
+> * **嵌入式** `io.netty.channel.embedded`    主要用于测试
 
 在非阻塞的transport中，`EventLoop`会循环处理不同的事件（包括handler中的各种业务代码），在handler中是不能做阻塞操作的。因为这会阻塞当前`EventLoop`， 而导致该`EventLoop`无法及时处理其他事件。而如果必须要执行阻塞操作的话，Netty提供了一种方式：在添加`ChannelHandlers`时，为`ChannelPipeline`指定一个`EventExecutorGroup`，该`EventExecutorGroup`会获取一个`EventExecutor`实例，该实例会使用不同的线程去执行handler中所有的方法；另外，在客户端预期并发连接较小的情况下，使用阻塞的transport的话，也可以暂时解决这类问题。因为每一个`EventLoop`绑定在一个固定的`Thread`中，而该`EventLoop`会始终处理这一个连接。
 
@@ -28,6 +29,7 @@ tags: [netty, NIO]
 ## ByteBuf
 
 > 相比于JDK的`ByteBuffer`, Netty提供的`ByteBuf`具有以下优点:
+>
 > * 可以定义自己的Buffer实现
 > * 如果需要将多个个ByteBuf合并在一起，内置的`CompositeByteBuf`可以通过zero copy实现这个feature，而使用JDK的`ByteBuffer`的话，必须重新创建一个`ByteBuffer`，将需要合并的`ByteBuffer`全部都copy到新`ByteBuffer`中去。
 > * Buffer容量可以按需扩充
@@ -43,7 +45,7 @@ tags: [netty, NIO]
 
 #### ByteBuffer
 
-  	  +-------------------+------------------------------+------------------+
+	  +-------------------+------------------------------+------------------+
       | compactable bytes |  readable or writable bytes  |                  |
       |                   |           (CONTENT)          |                  |
       +-------------------+------------------------------+------------------+
@@ -152,7 +154,7 @@ tags: [netty, NIO]
       |               (CONTENT)              |                  |
       +--------------------------------------+------------------+
       |                                      |                  |
-  readerIndex              <=           writerIndex    <=    capacity
+	  readerIndex              <=           writerIndex    <=    capacity
       0
 
 3.从`ByteBuf`中读取数据，`readerIndex`递增，但不能超过`writerIndex`
@@ -265,13 +267,13 @@ public class EchoServer {
 }
 {% endhighlight %}
 
-1. 要启动一个Server，需要new一个ServerBootstrap实例
-2. 为Channel设置类型，这里使用`NioServerSocketChannel`，以及执行该Channel中IO以及其他事件的EventLoopGroup，需要绑定的本地端口
+1. 要启动一个Server，需要new一个`ServerBootstrap`实例
+2. 为Channel设置类型，这里使用`NioServerSocketChannel`，以及执行该Channel中IO以及其他事件的`EventLoopGroup`，需要绑定的本地端口
 3. 当一个连接被接受，则创建一个子Channel，对应于该Channel的handlers为childHandler，一般在server中我们都只使用child handler，类似于bind的事件，属于父handler负责
 4. 为child Channel的pipeline添加handlers
 5. 服务bind到指定端口，并且block当前线程，直到bind操作完成
 6. block当前线程，直到Server Channel关闭
-7. 在Server Channel关闭后，将EventLoopGroup关闭
+7. 在Server Channel关闭后，将`EventLoopGroup`关闭
 
 #### ServerBootstrap
 
@@ -316,9 +318,9 @@ private ChannelFuture doBind(final SocketAddress localAddress) {
 }
 {% endhighlight %}
 
-1.创建一个Channel，并初始化，注册，对于NIO来说，注册过程就是将当前Channel在selector中注册
-2.如果上述步骤中有异常发生，则直接返回
-3.如果上述步骤已完成，则bind指定端口，如果未完成，则设置回调，当完成上述步骤后，进行bind
+1. 创建一个Channel，并初始化，注册，对于NIO来说，注册过程就是将当前Channel在selector中注册
+2. 如果上述步骤中有异常发生，则直接返回
+3. 如果上述步骤已完成，则bind指定端口，如果未完成，则设置回调，当完成上述步骤后，进行bind
 
 创建Channel的代码如下
 
