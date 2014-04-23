@@ -1,0 +1,27 @@
+---
+layout: default
+title: Categories
+header: Posts By Category
+---
+
+<div class="row">
+	<div class="col-md-9" role="main">
+		<div class="wiki-content">
+			{% for category in site.categories %} 
+			  <h2 id="{{ category[0] }}-ref">{{ category[0] | join: "/" }}</h2>
+			  <ul>
+			    {% assign pages_list = category[1] %}  
+			    {% include pages_list %}
+			  </ul>
+			{% endfor %}
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div class="bs-wiki-sidebar hidden-print" role="complementary">
+			<ul class="nav bs-wiki-sidenav">
+			    {% assign categories_list = site.categories %}
+			    {% include categories_list %}
+			</ul>
+		</div>
+	</div>
+</div>

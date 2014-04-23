@@ -1,3 +1,13 @@
 name: MengKe's Wiki
 markdown: kramdown
 pygments: true
+
+permalink: /:categories/:title.html
+
+author :
+  name : Ke Meng
+  email : mengke@me.com
+  github : mengke
+  twitter : mengke85
+  
+production_url : http://mengke.github.io

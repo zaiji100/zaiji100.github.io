@@ -12,9 +12,9 @@
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
 		<!-- syntax highlighting CSS --> 
-		<link rel="stylesheet" href="/css/syntax.css">
+		<link rel="stylesheet" href="/assets/css/syntax.css">
 		<!-- Custom CSS --> 
-		<link rel="stylesheet" href="/css/main.css"> 
+		<link rel="stylesheet" href="/assets/css/main.css"> 
 		
 	</head> 
 	<body> 
@@ -31,6 +31,9 @@
 				<nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation"> 
 					<ul class="nav navbar-nav"> 
 						<li><a href="/">Home</a></li>
+						<li><a href="/archive.html">Archives</a></li>
+						<li><a href="/categories.html">Categories</a></li>
+						<li><a href="/tags.html">Tags</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li><a href="https://www.github.com/mengke" class="fa fa-github fa-2x" target="_blank"></a></li>
@@ -43,9 +46,13 @@
 			{{ content }}
 		</div>
 		<footer class="bs-wiki-footer">
-		   <p>&copy; Mengke 2014
-			   built with <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
+		   <p>Authored by {{ site.author.name }} in 2014
+			   with help from <a href="http://jekyllbootstrap.com/" target="_blank">Jekyllbootstrap</a>, <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> and <a href="http://getbootstrap.com/" target="_blank">Bootstrap</a>
 		   </p>
+           <p>
+             All my work is <a href="http://www.opensource.org/licenses/MIT">MIT licensed, Open and Free</a>. (unless my employer requires otherwise)
+             <br>Though in that case I should work for a company that believes in Open and Free software.
+           </p>
 		</footer>
 		<script src="//code.jquery.com/jquery-2.1.0.min.js"></script>
 		<!-- Latest compiled and minified JavaScript -->

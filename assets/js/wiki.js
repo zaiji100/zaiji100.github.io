@@ -7,10 +7,17 @@
 
     // side bar
     setTimeout(function () {
-	  var b = $('.bs-wiki-sidebar')
+	  var b = $('.bs-post-sidebar')
       b.affix({
         offset: {
-          top: function(){ var c=b.offset().top, d=parseInt(b.children(0).css("margin-top"),10), e=$(".bs-wiki-nav").height(); return this.top=c-e-d }
+          top: function(){ var c=b.offset().top, d=parseInt(b.children(0).css("margin-top"),10), e=$(".bs-post-nav").height(); return this.top=c-e-d }
+        , bottom: function(){return this.bottom=$(".bs-wiki-footer").outerHeight(!0)}
+        }
+      })
+	  var bb = $('.bs-wiki-sidebar')
+      bb.affix({
+        offset: {
+          top: function(){ var c=bb.offset().top, d=parseInt(bb.children(0).css("margin-top"),10), e=$(".bs-post-nav").height(); return this.top=c-e-d }
         , bottom: function(){return this.bottom=$(".bs-wiki-footer").outerHeight(!0)}
         }
       })
@@ -24,8 +31,7 @@
 	h2.forEach(function(node) {
 		cache += '<li><a href="#' + node.id + '">' + $(node).text() + '</a></li>'
 	})
-	console.info(cache)
-	$('.bs-wiki-sidenav').append(cache)
+	$('.bs-post-sidenav').append(cache)
 	
 	$('body').scrollspy({target:".bs-wiki-sidebar"})
 })
