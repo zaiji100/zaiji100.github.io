@@ -148,7 +148,10 @@
 }
 
 .wiki-content h2 {
-	padding-top: 60px;
+	padding-top: 48px;
+	padding-bottom: 9px;
+	margin: 20px 0 30px;
+	border-bottom: 1px solid #eeeeee;
 }
 
 /* Common styles for all types */
