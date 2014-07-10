@@ -230,3 +230,124 @@ class TVSetSpec extends FeatureSpec with GivenWhenThen {
   }
 }
 {% endhighlight %}
+
+以下都选择使用`WordSpec`
+
+## 完成第一个TEST
+
+{% highlight scala %}
+import org.scalatest.WordSpec
+import scala.collection.mutable
+
+/**
+ * Created by ibntab on 14/7/8.
+ */
+class HelloWorldSpec extends WordSpec {
+
+  "A Stack" must {
+    "get values in last-in-first-out order" when {
+      "popping" in {
+        val stack = new mutable.Stack[Int]
+        stack.push(1)
+        stack.push(2)
+        assert(stack.pop() === 2)
+        assert(stack.pop() === 1)
+      }
+    }
+
+    "throw NoSuchElementException" when {
+      "it is empty" in {
+        val emptyStack = new mutable.Stack[String]
+        intercept[NoSuchElementException] {
+          emptyStack.pop()
+        }
+      }
+    }
+  }
+
+}
+{% endhighlight %}
+
+运行后它将生成类似以下测试结果
+
+<img src="/assets/img/HelloWorldSpec.png" class="img-thumbnail">
+
+### 使用Assertions
+
+可以向`assert`中传入一个`Boolean`表达式，如果`Boolean`表达式返回的结果为`true`，则通过测试，否则Fail
+
+{% highlight scala %}
+assert(1 == 2)
+{% endhighlight %}
+
+上面代码只会提示assert失败，如果希望有更易懂的提示信息，可以使用如下代码
+
+{% highlight scala %}
+assert(1 === 2)
+{% endhighlight %}
+
+上述代码会提示"1 did not equal 2"
+
+可以使用`intercept`来测试代码是否抛出预期的异常
+
+{% highlight scala %}
+val s = "hi"
+val thrown = intercept[IndexOutOfBoundsException] {
+  s.charAt(-1)
+}
+assert(thrown.getMessage === "String index out of range: -1")
+{% endhighlight %}
+
+### 使用`BeforeAndAfter`抽取公共逻辑
+
+类似于Junit中的`@Before`和`@After`之流，scalatest中可以混入`BeforeAndAfter`特质
+
+{% highlight scala %}
+import org.scalatest.{BeforeAndAfter, WordSpec}
+import scala.collection.mutable
+
+/**
+ * Created by ibntab on 14/7/8.
+ *
+ */
+class HelloWorldSpec extends WordSpec with BeforeAndAfter {
+
+  var stack: mutable.Stack[Int] = _
+
+  before {
+    stack = new mutable.Stack[Int]
+  }
+
+
+  "A Stack" must {
+    "get values in last-in-first-out order" when {
+      "popping" in {
+        stack.push(1)
+        stack.push(2)
+        assert(stack.pop() === 2)
+        assert(stack.pop() === 1)
+      }
+    }
+
+    "throw NoSuchElementException" when {
+      "it is empty" in {
+        intercept[NoSuchElementException] {
+          stack.pop()
+        }
+      }
+    }
+  }
+  
+  after {
+	  ...
+  }
+}
+{% endhighlight %}
+
+## Assertions
+
+
+
+## ScalaCheck的几个概念
+
+1. **属性Properties** 属性Properties是ScalaTest的一个基本测试单元，类似于Junit或TestNG中的一个测试方法（用`@Test`注解）
