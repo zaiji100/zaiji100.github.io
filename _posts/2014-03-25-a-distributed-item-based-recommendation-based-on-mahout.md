@@ -485,3 +485,7 @@ public class AggregateAndRecommendReducer
 ## 推荐流程 {#process}
 
 <img src="/assets/img/recommend.png" class="img-thumbnail">
+
+## 源代码 {#source}
+
+以上代码实现可见[商品相似度简单实现](https://github.com/mengke/las)
