@@ -7,6 +7,17 @@ tags: [lucene, search engine]
 
 ## 对内容进行索引 {#content-index}
 
+假设我们有一系列的文章需要进行索引, 我们将每一篇文章看成一个`Document`, 而这个`Document`中包含了多个字段(`Field`s), 如作者, 出版日期, 前言, ISBN, 内容等, 比如我们需要查找内容包含"Search Engine"的章节, 对于正常的逻辑, 我们需要迭代整篇文章的内容, 去匹配"Search Engine"这个词, 但是这样的效率是极低的, 每一次搜索, 都需要将整篇文章进行一遍搜索, 所以, 就提出了著名的"倒排索引方式"
+
+倒排索引的过程:
+
+1. 首先我们需要为这一系列的`Document`s分配一个编号, 姑且叫做`DocId`, 则对于`[DocumentA, DocumentB, DocumentC]`, 我们分别为他们设置的编号为[d1, d2, d3]`
+2. 我们将这些`Document`s按照`Field`进行索引, 为了简明起见, 只对内容进行索引, 我们将一个Document的内容按照一定的规则进行分词, 当然也有一些字段我是不希望被分词的, 比如作者等信息等. 想象一下我们将"One world, one dream. "切分为[one, world, one, dream]. 我们将切分后的每一个值叫做一个`Term`, 这样我们建立一个以Term为基准的索引, 可以把它简单比作以`Term`为key的一个Map或字典. 上述句子可以把它索引为Term("one") -> d1:2, Term("dream") -> d1:1, Term("world") -> d1:1, 其中Term("one")就是一个Term, 它是索引以及搜索时的最小单位, "d1:2"中的`的`d1`是该Term出现的文章编号, `2`是`Term`出现在该文档中的次数. 当然除了这两个维度的信息, 我们还可以保存该`Term`的其他相关信息, 比如出现位置等.
+3. 假设我们将所有`Document`进行了索引, 得到的就是Term("one") -> [d1:2; d2:1; d3:3], Term("dream") -> [d1:1, d3:2], Term("world") -> d1:1
+4. 当我们需要查询单词`one`时, 我们通过索引立刻就能够找到`one`这个单词出现在DocumentA, DocumentB, DocumentC中, 包括他们的分别出现的次数.
+5. 另外当我们对多个字段进行索引时, 这就需要在每一个Field中包含这些Term信息
+
+
 ## 搜索条件的解析 {#parse-query}
 
 搜索条件分为两种，BooleanQuery和Full-Text Query

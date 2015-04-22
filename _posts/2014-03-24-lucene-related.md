@@ -29,8 +29,11 @@ Lucene程序的主要流程：
 在Lucene中最基本的概念是index，document，field，term。
 
 > 一个Index由一系列Documents组成
+>
 > > 一个Document由一系列Fields组成
+> >
 > > > 一个Field由一系列命名Term组成
+> > >
 > > > > 一个Term由一系列bytes组成
 
 <div class="alert alert-info">注：一个Field可能会被tokenize成多个Term，也可以整体作为一个Term</div>
