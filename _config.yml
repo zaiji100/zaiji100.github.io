@@ -1,13 +1,13 @@
-name: MengKe's Wiki
+name: Zaiji100's Wiki
 markdown: kramdown
 pygments: true
 
 permalink: /:categories/:title.html
 
 author :
-  name : Ke Meng
-  email : mengke@me.com
-  github : mengke
-  twitter : mengke85
+  name : zaiji100 (Amain)
+  email : 1076421128@qq.com
+  github : zaiji100
+  twitter : zaiji100
   
-production_url : http://mengke.github.io
+production_url : http://zaiji100.github.io
